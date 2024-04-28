@@ -12,4 +12,4 @@ for i in "${ADDR[@]}"; do
 done
 
 # ngrok コマンドの実行
-docker run -it --network='host' --env-file .env ngrok/ngrok http 3080 --oauth google $ALLOW_EMAILS
+docker run -it --network='host' --env-file .env ngrok/ngrok http --domain=$NGROK_DOMAIN_LIBRECHAT 3080 --oauth google $ALLOW_EMAILS
