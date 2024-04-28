@@ -8,6 +8,7 @@
     "packages/*"
   ],
   "scripts": {
+    "ngrok": "docker run -it --network='host' --env-file .env ngrok/ngrok http 3080",
     "update": "node config/update.js",
     "add-balance": "node config/add-balance.js",
     "list-balances": "node config/list-balances.js",
