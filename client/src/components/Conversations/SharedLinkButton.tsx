@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import copy from 'copy-to-clipboard';
 import { Copy, Link } from 'lucide-react';
-import { useUpdateSharedLinkMutation } from '~/data-provider';
 import type { TSharedLink } from 'librechat-data-provider';
+import { useUpdateSharedLinkMutation } from '~/data-provider';
+import { NotificationSeverity } from '~/common';
+import { useToastContext } from '~/Providers';
 import { Spinner } from '~/components/svg';
 import { Button } from '~/components/ui';
 import { useLocalize } from '~/hooks';
@@ -21,8 +23,18 @@ export default function SharedLinkButton({
   setIsUpdated: (isUpdated: boolean) => void;
 }) {
   const localize = useLocalize();
+  const { showToast } = useToastContext();
   const [isCopying, setIsCopying] = useState(false);
-  const { mutateAsync, isLoading } = useUpdateSharedLinkMutation();
+
+  const { mutateAsync, isLoading } = useUpdateSharedLinkMutation({
+    onError: () => {
+      showToast({
+        message: localize('com_ui_share_error'),
+        severity: NotificationSeverity.ERROR,
+        showIcon: true,
+      });
+    },
+  });
 
   const copyLink = () => {
     if (!share) {
@@ -68,7 +80,7 @@ export default function SharedLinkButton({
         ),
       };
     }
-    if (share?.isPublic) {
+    if (share.isPublic) {
       return {
         handler: async () => {
           await updateSharedLink();
@@ -95,12 +107,12 @@ export default function SharedLinkButton({
 
   const handlers = getHandler();
   return (
-    <Button
+    <button
       disabled={isLoading || isCopying}
       onClick={() => {
         handlers.handler();
       }}
-      className="min-w-32 whitespace-nowrap bg-green-500 text-white hover:bg-green-600 dark:bg-green-600 dark:text-white dark:hover:bg-green-800"
+      className="btn btn-primary flex items-center"
     >
       {isCopying && (
         <>
@@ -110,6 +122,6 @@ export default function SharedLinkButton({
       )}
       {!isCopying && !isLoading && handlers.label}
       {!isCopying && isLoading && <Spinner className="h-4 w-4" />}
-    </Button>
+    </button>
   );
 }

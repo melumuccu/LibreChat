@@ -1,35 +1,41 @@
+import React, { useEffect, useState, useMemo } from 'react';
 import { useRecoilState } from 'recoil';
-import { useMemo, useEffect } from 'react';
 import Dropdown from '~/components/ui/DropdownNoState';
-import { useVoicesQuery } from '~/data-provider';
-import { useLocalize } from '~/hooks';
+import { useLocalize, useTextToSpeech } from '~/hooks';
 import store from '~/store';
 
 export default function VoiceDropdown() {
   const localize = useLocalize();
   const [voice, setVoice] = useRecoilState(store.voice);
-  const { data } = useVoicesQuery();
+  const { voices } = useTextToSpeech();
+  const [voiceOptions, setVoiceOptions] = useState([]);
+  const [engineTTS] = useRecoilState(store.engineTTS);
 
   useEffect(() => {
-    if (!voice && data?.length) {
-      setVoice(data[0]);
-    }
-  }, [voice, data, setVoice]);
+    async function fetchVoices() {
+      const options = await voices();
+      setVoiceOptions(options);
 
-  const voiceOptions = useMemo(
-    () => (data ?? []).map((v: string) => ({ value: v, display: v })),
-    [data],
-  );
+      if (!voice && options.length > 0) {
+        setVoice(options[0]);
+      }
+    }
+
+    fetchVoices();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [engineTTS]);
+
+  const memoizedVoiceOptions = useMemo(() => voiceOptions, [voiceOptions]);
 
   return (
     <div className="flex items-center justify-between">
       <div>{localize('com_nav_voice_select')}</div>
       <Dropdown
         value={voice}
-        onChange={(value: string) => setVoice(value)}
-        options={voiceOptions}
-        width={220}
-        position={'left'}
+        onChange={setVoice}
+        options={memoizedVoiceOptions}
+        sizeClasses="min-w-[200px] !max-w-[400px] [--anchor-max-width:400px]"
+        anchor="bottom start"
         testId="VoiceDropdown"
       />
     </div>
