@@ -11,3 +11,25 @@
 
 1. `docker compose up` => can access `localhost:3080`
 1. `pnpm run ngrok` => can access to the global link shown in terminal.
+
+# UPDATE
+
+1. `git fetch upstream`
+
+1. `git checkout -b upstream/main upstream/main`
+
+1. `git checkout -b develop`
+
+1. `git merge upstream/main`
+
+1. 動作確認
+
+1. `git push`
+
+1. PR を作成して main にマージ
+
+1. `git checkout main`
+
+1. `git branch -d develop`
+
+1. `git checkout -d upstream/main`
